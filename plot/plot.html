@@ -1,0 +1,45 @@
+<html>
+<head>
+<script src="flot/jquery.js"></script>
+<script src="flot/jquery.flot.js"></script>
+<script src="flot/jquery.flot.highlightseries.js"></script>
+
+<style>
+#plotArea {
+    width:  800px;
+    height: 600px;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+   $.getJSON('data.json', function(data) {
+      plotChart(data);
+   });
+});
+
+function plotChart(data) {
+    var pdata = [
+       { label: 'Baroque',   data: data[0] },
+       { label: 'Classical', data: data[1] },
+       { label: 'Romantic',  data: data[2] },
+       { label: 'Modern',    data: data[3] }
+    ];
+
+    var plot = $.plot($('#plotArea'), pdata, {
+        grid: {
+            hoverable: true
+        },
+        highlightSeries: {
+            color: 'black'
+        } 
+    });
+
+   
+}
+</script>
+</head>
+<body>
+<div id="plotArea"></div>
+</body>
+</html>

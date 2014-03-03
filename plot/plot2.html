@@ -1,0 +1,155 @@
+<html>
+<head>
+<script src="flot/jquery.js"></script>
+<script src="flot/jquery.flot.js"></script>
+<script src="flot/jquery.flot.highlightseries.js"></script>
+
+<style>
+body {
+   font-family: "arial";
+}
+#plotArea {
+    width:  700px;
+    height: 500px;
+}
+#stats {
+    width: 650px;
+}
+#featureDropdown {
+    font-size: 16px;
+}
+</style>
+
+<script>
+
+var featureNames = [];
+featureNames['tonalCertainty'] = 'Tonal Certainty';
+featureNames['chromaticMotion'] = 'Chromatic Motion';
+featureNames['averageMelodicInterval'] = 'Average Melodic Interval';
+featureNames['numberOfCommonMelodicIntervals'] = 'Number of Common Melodic Intervals';
+featureNames['durationOfMelodicArcs'] = 'Duration of Melodic Arcs';
+featureNames['averageNumberOfIndependentVoices'] = 'Average Number of Independent Voices';
+featureNames['averageVariabilityOfTimeBetweenAttacksForEachVoice'] = 'Average Variability of Attacks';
+featureNames['averageTimeBetweenAttacks'] = 'Average Time Between Attacks';
+featureNames['changesOfMeter'] = 'Changes of Meter';
+featureNames['pitchClassVariety'] = 'Pitch Class Variety';
+featureNames['pitchVariety'] = 'Pitch Variety';
+featureNames['numberOfCommonPitches'] = 'Number of Common Pitches';
+featureNames['rangeFeature'] = 'Range';
+featureNames['repeatedNotes'] = 'Repeated Notes';
+
+var features = [];
+$(document).ready(function() {
+   $.getJSON('data2.json', function(featureList) {
+      features = featureList;
+      createDropDown(features);
+      feature = features[0];
+      plotData(feature);
+   });
+});
+
+function plotData(feature) {
+
+    var name = feature.name;
+    $('#currentFeatureLabel').text(featureNames[name]);
+
+    for (var i = 0; i < 4; i++) {
+       var period = feature.periods[i];
+       $('#min' + i).text(period.min.toFixed(4));
+       $('#max' + i).text(period.max.toFixed(4));
+       $('#mean' + i).text(period.mean.toFixed(4));
+       $('#median' + i).text(period.median.toFixed(4));
+    }
+
+    var data = [];
+    for (var i = 0; i < 4; i++) {
+       data[i] = feature.periods[i].data;
+    }
+    plotChart(data);
+}
+
+function createDropDown(features) {
+   for (var i = 0; i < features.length; i++) {
+      var feature = features[i];
+      $('#featureList').append('<option value=' + i + '>' + feature.name + '</option>');
+   }
+   $('#featureList').change(function() {
+      var featureIndex = $('#featureList').val();
+      plotData(features[featureIndex]);
+   });
+}
+
+function plotChart(data) {
+
+    $('#plotArea').empty();
+
+    var pdata = [
+       { label: 'Baroque',   data: data[0] },
+       { label: 'Classical', data: data[1] },
+       { label: 'Romantic',  data: data[2] },
+       { label: 'Modern',    data: data[3] }
+    ];
+
+    var plot = $.plot($('#plotArea'), pdata, {
+        grid: {
+            hoverable: true
+        },
+        highlightSeries: {
+            color: 'black'
+        } 
+    });
+
+   
+}
+</script>
+</head>
+<body>
+<p/>
+<div id="featureDropdown">
+  Feature:  <select id="featureList"></select>
+</div>
+<p/>
+<fieldset id="stats">
+  <table>
+     <tr>
+         <td>&nbsp;</td>
+         <td>Baroque&nbsp;</td>
+         <td>Classical&nbsp;</td>
+         <td>Romantic&nbsp;</td>
+         <td>Modern&nbsp;</td>
+     </tr>
+     <tr id="minRow">
+         <td>Min:</td>
+         <td id="min0">&nbsp;</td>
+         <td id="min1">&nbsp;</td>
+         <td id="min2">&nbsp;</td>
+         <td id="min3">&nbsp;</td>
+     </tr>
+     <tr id="maxRow">
+         <td>Max:</td>
+         <td id="max0">&nbsp;</td>
+         <td id="max1">&nbsp;</td>
+         <td id="max2">&nbsp;</td>
+         <td id="max3">&nbsp;</td>
+     </tr>
+     <tr id="meanRow">
+         <td>Mean:</td>
+         <td id="mean0">&nbsp;</td>
+         <td id="mean1">&nbsp;</td>
+         <td id="mean2">&nbsp;</td>
+         <td id="mean3">&nbsp;</td>
+     </tr>
+     <tr id="medianRow">
+         <td>Median:</td>
+         <td id="median0">&nbsp;</td>
+         <td id="median1">&nbsp;</td>
+         <td id="median2">&nbsp;</td>
+         <td id="median3">&nbsp;</td>
+     </tr>
+  </table>
+</fieldset>
+<p/>
+<p id="currentFeatureLabel" style="font-size:24px;margin-left:30px"">Tonal Certainty</p>
+<div id="plotArea"></div>
+</body>
+</html>
